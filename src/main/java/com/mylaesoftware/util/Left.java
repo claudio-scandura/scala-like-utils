@@ -4,12 +4,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Objects;
 
-public final class Left<E> extends Either<E, Object> {
+public final class Left<Value, None> extends Either<Value, None> {
 
-    private final E value;
+    private final Value value;
 
 
-    public Left(E value) {
+    public Left(Value value) {
         this.value = Objects.requireNonNull(value, "value must not be null");
     }
 
@@ -24,12 +24,12 @@ public final class Left<E> extends Either<E, Object> {
     }
 
     @Override
-    public E left() {
+    public Value left() {
         return value;
     }
 
     @Override
-    public Object right() {
+    public None right() {
         throw new NotImplementedException();
     }
 

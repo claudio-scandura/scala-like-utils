@@ -7,12 +7,12 @@ import java.util.Objects;
 /**
  * Created by claudioscandura on 14/11/2015.
  */
-public final class Right<T> extends Either<Object, T> {
+public final class Right<None, Value> extends Either<None, Value> {
 
 
-    private final T value;
+    private final Value value;
 
-    public Right(T value) {
+    public Right(Value value) {
         this.value = Objects.requireNonNull(value, "value must not be null");
     }
 
@@ -27,12 +27,12 @@ public final class Right<T> extends Either<Object, T> {
     }
 
     @Override
-    public Object left() {
+    public None left() {
         throw new NotImplementedException();
     }
 
     @Override
-    public T right() {
+    public Value right() {
         return value;
     }
 }

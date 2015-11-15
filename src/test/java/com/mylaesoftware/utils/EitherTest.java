@@ -101,10 +101,10 @@ public class EitherTest {
     }
 
     @Test
-    public void fold_shouldCallFailurteFunction_whenEitherIsLeft() throws Exception {
-        Either<RuntimeException, ?> rightEither = new CustomLeft(new RuntimeException());
+    public void fold_shouldCallFailureFunction_whenEitherIsLeft() throws Exception {
+        Either<RuntimeException, ?> leftEither = new CustomLeft(new RuntimeException());
 
-        Integer result = rightEither.fold(
+        Integer result = leftEither.fold(
                 (f) -> 321,
                 (s) -> 123
         );
@@ -124,12 +124,52 @@ public class EitherTest {
 
     @Test
     public void accept_shouldCallFailurteFunction_whenEitherIsLeft() throws Exception {
-        Either<RuntimeException, ?> rightEither = new CustomLeft(new RuntimeException());
+        Either<RuntimeException, ?> leftEither = new CustomLeft(new RuntimeException());
 
-        rightEither.accept(
+        leftEither.accept(
                 (l) -> doNothing(),
                 (r) -> fail("Accept on a Either.Left should not call the failure consumer.")
         );
+    }
+
+    @Test
+    public void mapLeft_shouldApplyMapperToLeftValue_whenEitherIsLeft() throws Exception {
+        String expectedMessage = "some bad error..";
+        Either<RuntimeException, ?> leftEither = new CustomLeft(new RuntimeException(expectedMessage));
+
+        Optional<String> result = leftEither.mapLeft(Throwable::getMessage);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get(), equalTo(expectedMessage));
+    }
+
+    @Test
+    public void mapLeft_shouldReturnOptionalEmpty_whenEitherIsNotLeft() throws Exception {
+        Either<Object, String> nonLeftEither = new CustomRight("This is a right Either");
+
+        Optional<String> result = nonLeftEither.mapLeft(Object::toString);
+
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void mapRight_shouldApplyMapperToRightValue_whenEitherIsRight() throws Exception {
+        String expectedResult = "some lowercase string";
+        Either<?, String> customRight = new CustomRight(expectedResult);
+
+        Optional<String> result = customRight.mapRight(String::toUpperCase);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get(), equalTo(expectedResult.toUpperCase()));
+    }
+
+    @Test
+    public void mapRight_shouldReturnOptionalEmpty_whenEitherIsNotRight() throws Exception {
+        Either<RuntimeException, Object> nonRightEither = new CustomLeft(new RuntimeException());
+
+        Optional<String> result = nonRightEither.mapRight(Object::toString);
+
+        assertFalse(result.isPresent());
     }
 
     private static void doNothing() {

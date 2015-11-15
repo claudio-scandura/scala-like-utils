@@ -7,21 +7,22 @@ import com.mylaesoftware.util.Right;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ExceptionHandling {
 
-    public static <E extends Throwable, T> Either<E, T> Try(Supplier<T> supplier) {
+    public static <T> Either<Throwable, T> Try(Supplier<T> supplier) {
         try {
-            return new Right(supplier.get());
-        } catch (Throwable t) {
-            return new Left(t);
+            return new Right<>(supplier.get());
+        } catch (Throwable exception) {
+            return new Left<>(exception);
         }
     }
 
     public static <T> RecoverableTry<T> RecoverableTry(Supplier<T> supplier) {
-        return new RecoverableTryImpl(Try(supplier));
+        return new RecoverableTryImpl<>(Try(supplier));
     }
 
     private static class RecoverableTryImpl<T> implements RecoverableTry<T> {
@@ -35,7 +36,8 @@ public class ExceptionHandling {
         }
 
         @Override
-        public RecoverableTry<T> recoverWith(Function<Throwable, T> recoveryAction, Class<? extends Throwable>... forExceptionType) {
+        @SafeVarargs
+        final public RecoverableTry<T> recoverWith(Function<Throwable, T> recoveryAction, Class<? extends Throwable>... forExceptionType) {
             for (Class<? extends Throwable> exceptionType : forExceptionType) {
                 recoveryStrategies.put(exceptionType, recoveryAction);
             }
@@ -44,13 +46,15 @@ public class ExceptionHandling {
 
         @Override
         public Either<Throwable, T> go() {
-            if (bodyExecutionResult.isLeft()) {
-                Function<Throwable, T> recovery = recoveryStrategies.get(bodyExecutionResult.left().getClass());
-                if (recovery != null) {
-                    return new Right(recovery.apply(bodyExecutionResult.left()));
-                }
-            }
-            return bodyExecutionResult;
+            return bodyExecutionResult
+                    .mapLeft(this::recoverFromFailure)
+                    .orElse(bodyExecutionResult);
+        }
+
+        private Either<Throwable, T> recoverFromFailure(Throwable throwable) {
+            return Optional.ofNullable(recoveryStrategies.get(throwable.getClass()))
+                    .map(function -> new Right<Throwable, T>(function.apply(throwable)).asEither())
+                    .orElse(new Left<Throwable, T>(throwable).asEither());
         }
     }
 }
