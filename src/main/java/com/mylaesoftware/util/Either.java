@@ -29,10 +29,18 @@ public abstract class Either<Left, Right> {
     }
 
     public void accept(Consumer<Left> leftConsumer, Consumer<Right> rightConsumer) {
-        mapLeft(l -> leftConsumer);
-        mapRight(r -> rightConsumer);
-    }
+        fold(
+                l -> {
+                    leftConsumer.accept(l);
+                    return null;
+                },
+                r -> {
+                    rightConsumer.accept(r);
+                    return null;
+                }
+        );
 
+    }
 
     public final Optional<Right> toOptional() {
         return isRight() ? Optional.of(right()) : Optional.empty();

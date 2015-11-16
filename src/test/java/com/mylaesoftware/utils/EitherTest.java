@@ -1,6 +1,7 @@
 package com.mylaesoftware.utils;
 
 import com.mylaesoftware.util.Either;
+import org.junit.Before;
 import org.junit.Test;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -10,6 +11,8 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 
 public class EitherTest {
+
+    static boolean doSomethingWasCalled = false;
 
     private class CustomRight extends Either<Object, String> {
 
@@ -71,6 +74,11 @@ public class EitherTest {
         }
     }
 
+    @Before
+    public void setup() {
+        doSomethingWasCalled =false;
+    }
+
     @Test
     public void asOptional_shouldReturnAnOptionalContainingTheRighValue_whenEitherIsRight() throws Exception {
         String expectedResult = "Hello dude!";
@@ -118,18 +126,22 @@ public class EitherTest {
 
         rightEither.accept(
                 (l) -> fail("Accept on a Either.Right should not call the failure consumer."),
-                (r) -> doNothing()
+                (r) -> doSomething()
         );
+
+        assertTrue(doSomethingWasCalled);
     }
 
     @Test
-    public void accept_shouldCallFailurteFunction_whenEitherIsLeft() throws Exception {
+    public void accept_shouldCallFailureFunction_whenEitherIsLeft() throws Exception {
         Either<RuntimeException, ?> leftEither = new CustomLeft(new RuntimeException());
 
         leftEither.accept(
-                (l) -> doNothing(),
+                (l) -> doSomething(),
                 (r) -> fail("Accept on a Either.Left should not call the failure consumer.")
         );
+
+        assertTrue(doSomethingWasCalled);
     }
 
     @Test
@@ -172,7 +184,7 @@ public class EitherTest {
         assertFalse(result.isPresent());
     }
 
-    private static void doNothing() {
-
+    private static void doSomething() {
+        doSomethingWasCalled = true;
     }
 }
