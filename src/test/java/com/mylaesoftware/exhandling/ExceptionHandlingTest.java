@@ -10,6 +10,7 @@ import static com.mylaesoftware.exhandling.ExceptionHandling.Try;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
+@SuppressWarnings({"unchecked", "ThrowableResultOfMethodCallIgnored"})
 public class ExceptionHandlingTest {
 
     @Test
@@ -38,7 +39,7 @@ public class ExceptionHandlingTest {
 
         Either<Throwable, Long> result = RecoverableTry(this::failingLongSupplier)
                 .recoverWith(e -> 23L, RuntimeException.class)
-                .go();
+                .result();
 
         assertTrue(result.isRight());
         assertThat(result.right(), equalTo(23L));
@@ -50,7 +51,7 @@ public class ExceptionHandlingTest {
         Either<Throwable, Long> result = RecoverableTry(this::failingLongSupplier)
                 .recoverWith(e -> 23L, RuntimeException.class)
                 .recoverWith(e -> 42L, RuntimeException.class)
-                .go();
+                .result();
 
         assertTrue(result.isRight());
         assertThat(result.right(), equalTo(42L));
@@ -65,7 +66,7 @@ public class ExceptionHandlingTest {
 
         Either<Throwable, Long> result = RecoverableTry(anotherFailingSupplier)
                 .recoverWith(e -> 23L, RuntimeException.class, IllegalArgumentException.class)
-                .go();
+                .result();
 
         assertTrue(result.isRight());
         assertThat(result.right(), equalTo(23L));
@@ -76,7 +77,7 @@ public class ExceptionHandlingTest {
 
         Either<Throwable, Long> result = RecoverableTry(this::failingLongSupplier)
                 .recoverWith(e -> 23L, IllegalArgumentException.class)
-                .go();
+                .result();
 
         assertTrue(result.isLeft());
         assertThat(result.left().getClass(), equalTo(RuntimeException.class));

@@ -24,22 +24,13 @@ public abstract class Either<Left, Right> {
         return isRight() ? Optional.of(mapper.apply(right())) : Optional.empty();
     }
 
-    public final <G> G fold(Function<Left, G> failure, Function<Right, G> success) {
-        return isRight() ? success.apply(right()) : failure.apply(left());
+    public final <G> G fold(Function<Left, G> leftMapper, Function<Right, G> rightMapper) {
+        return isRight() ? rightMapper.apply(right()) : leftMapper.apply(left());
     }
 
-    public void accept(Consumer<Left> failure, Consumer<Right> success) {
-        fold(
-                l -> {
-                    failure.accept(l);
-                    return null;
-                },
-                r -> {
-                    success.accept(r);
-                    return null;
-                }
-        );
-
+    public void accept(Consumer<Left> leftConsumer, Consumer<Right> rightConsumer) {
+        mapLeft(l -> leftConsumer);
+        mapRight(r -> rightConsumer);
     }
 
 

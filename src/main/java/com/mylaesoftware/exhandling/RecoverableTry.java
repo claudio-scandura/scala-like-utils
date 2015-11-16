@@ -11,5 +11,5 @@ public interface RecoverableTry<T> {
 
     RecoverableTry<T> recoverWith(Function<Throwable, T> recoveryAction, Class<? extends Throwable>... forExceptionType);
 
-    Either<Throwable, T> go();
+    Either<Throwable, T> result();
 }

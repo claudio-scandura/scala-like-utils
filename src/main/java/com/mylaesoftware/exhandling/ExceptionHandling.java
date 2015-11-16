@@ -5,7 +5,7 @@ import com.mylaesoftware.util.Either;
 import com.mylaesoftware.util.Left;
 import com.mylaesoftware.util.Right;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -32,7 +32,7 @@ public class ExceptionHandling {
 
         RecoverableTryImpl(Either<Throwable, T> bodyExecutionResult) {
             this.bodyExecutionResult = bodyExecutionResult;
-            this.recoveryStrategies = new LinkedHashMap<>();
+            this.recoveryStrategies = new HashMap<>();
         }
 
         @Override
@@ -45,7 +45,7 @@ public class ExceptionHandling {
         }
 
         @Override
-        public Either<Throwable, T> go() {
+        public Either<Throwable, T> result() {
             return bodyExecutionResult
                     .mapLeft(this::recoverFromFailure)
                     .orElse(bodyExecutionResult);
