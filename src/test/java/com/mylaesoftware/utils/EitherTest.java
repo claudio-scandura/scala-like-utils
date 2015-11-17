@@ -80,19 +80,36 @@ public class EitherTest {
     }
 
     @Test
-    public void asOptional_shouldReturnAnOptionalContainingTheRighValue_whenEitherIsRight() throws Exception {
+    public void rightOptional_shouldReturnAnOptionalContainingTheRightValue_whenEitherIsRight() throws Exception {
         String expectedResult = "Hello dude!";
         Either<?, String> rightEither = new CustomRight(expectedResult);
 
-        Optional<String> result = rightEither.toOptional();
+        Optional<String> result = rightEither.rightOptional();
         assertThat(result, equalTo(Optional.of(expectedResult)));
     }
 
     @Test
-    public void asOptional_shouldReturnEmpty_whenEitherIsLeft() throws Exception {
+    public void rightOptional_shouldReturnEmpty_whenEitherIsLeft() throws Exception {
         Either<RuntimeException, ?> leftEither = new CustomLeft(new RuntimeException("Damn!"));
 
-        Optional<?> result = leftEither.toOptional();
+        Optional<?> result = leftEither.rightOptional();
+        assertThat(result, equalTo(Optional.empty()));
+    }
+
+    @Test
+    public void leftOptional_shouldReturnAnOptionalContainingTheLeftValue_whenEitherIsLeft() throws Exception {
+        RuntimeException expectedResult = new RuntimeException("Hello dude!");
+        Either<RuntimeException, ?> leftEither = new CustomLeft(expectedResult);
+
+        Optional<RuntimeException> result = leftEither.leftOptional();
+        assertThat(result, equalTo(Optional.of(expectedResult)));
+    }
+
+    @Test
+    public void leftOptional_shouldReturnEmpty_whenEitherIsLeft() throws Exception {
+        Either<?, String> rightEither = new CustomRight("Hello dude!");
+
+        Optional<?> result = rightEither.leftOptional();
         assertThat(result, equalTo(Optional.empty()));
     }
 

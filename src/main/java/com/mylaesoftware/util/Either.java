@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static java.util.function.Function.identity;
+
 public abstract class Either<Left, Right> {
 
     public abstract boolean isLeft();
@@ -42,8 +44,12 @@ public abstract class Either<Left, Right> {
 
     }
 
-    public final Optional<Right> toOptional() {
-        return isRight() ? Optional.of(right()) : Optional.empty();
+    public final Optional<Right> rightOptional() {
+        return mapRight(identity());
+    }
+
+    public final Optional<Left> leftOptional() {
+        return mapLeft(identity());
     }
 
 }
