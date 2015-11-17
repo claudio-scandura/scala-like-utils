@@ -3,7 +3,6 @@ package com.mylaesoftware.utils;
 import com.mylaesoftware.exhandling.ExceptionHandling;
 import com.mylaesoftware.util.Left;
 import org.junit.Test;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
@@ -33,7 +32,7 @@ public class LeftTest {
         assertFalse(left.isRight());
 
         Throwable actualException = ExceptionHandling.Try(left::right).left();
-        assertEquals(NotImplementedException.class, actualException.getClass());
+        assertEquals(UnsupportedOperationException.class, actualException.getClass());
     }
 
 }

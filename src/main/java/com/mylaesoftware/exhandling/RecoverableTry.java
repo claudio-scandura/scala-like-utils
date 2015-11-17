@@ -1,7 +1,5 @@
 package com.mylaesoftware.exhandling;
 
-import com.mylaesoftware.util.Either;
-
 import java.util.function.Function;
 
 /**
@@ -11,5 +9,5 @@ public interface RecoverableTry<T> {
 
     RecoverableTry<T> recoverWith(Function<Throwable, T> recoveryAction, Class<? extends Throwable>... forExceptionType);
 
-    Either<Throwable, T> result();
+    Try<T> result();
 }

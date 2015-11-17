@@ -21,16 +21,20 @@ public class ExceptionHandling {
         }
     }
 
+    public static <T> Try<T> newTry(Supplier<T> supplier) {
+        return new Try(Try(supplier));
+    }
+
     public static <T> RecoverableTry<T> RecoverableTry(Supplier<T> supplier) {
-        return new RecoverableTryImpl<>(Try(supplier));
+        return new RecoverableTryImpl<>(newTry(supplier));
     }
 
     private static class RecoverableTryImpl<T> implements RecoverableTry<T> {
 
-        private final Either<Throwable, T> bodyExecutionResult;
+        private final Try<T> bodyExecutionResult;
         private final Map<Class<? extends Throwable>, Function<Throwable, T>> recoveryStrategies;
 
-        RecoverableTryImpl(Either<Throwable, T> bodyExecutionResult) {
+        RecoverableTryImpl(Try<T> bodyExecutionResult) {
             this.bodyExecutionResult = bodyExecutionResult;
             this.recoveryStrategies = new HashMap<>();
         }
@@ -44,17 +48,23 @@ public class ExceptionHandling {
             return this;
         }
 
+        //change this once the Try type works out
         @Override
-        public Either<Throwable, T> result() {
-            return bodyExecutionResult
-                    .mapLeft(this::recoverFromFailure)
-                    .orElse(bodyExecutionResult);
+        public Try<T> result() {
+            if (bodyExecutionResult.isFailure()) {
+                return recoverFromFailure(bodyExecutionResult.failed().get());
+            }
+            return bodyExecutionResult;
+//            bodyExecutionResult.mapLeft(this::recoverFromFailure);
+//            return bodyExecutionResult
+//                    .mapLeft(this::recoverFromFailure)
+//                    .orElse(bodyExecutionResult);
         }
 
-        private Either<Throwable, T> recoverFromFailure(Throwable throwable) {
+        private Try<T> recoverFromFailure(Throwable throwable) {
             return Optional.ofNullable(recoveryStrategies.get(throwable.getClass()))
-                    .map(function -> new Right<Throwable, T>(function.apply(throwable)).asEither())
-                    .orElse(new Left<Throwable, T>(throwable).asEither());
+                    .map(function -> new Try<>(new Right<>(function.apply(throwable))))
+                    .orElse(new Try<>(new Left<>(throwable)));
         }
     }
 }

@@ -4,8 +4,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.util.function.Function.identity;
-
 public abstract class Either<Left, Right> {
 
     public abstract boolean isLeft();
@@ -16,21 +14,15 @@ public abstract class Either<Left, Right> {
 
     public abstract Right right();
 
-    public final Either<Left, Right> asEither() {return this;}
+    public abstract <G> Either<G, Right> mapLeft(Function<Left, G> mapper);
 
-    public final <G> Optional<G> mapLeft(Function<Left, G> mapper) {
-        return isLeft() ? Optional.of(mapper.apply(left())) : Optional.empty();
-    }
-
-    public final <G> Optional<G> mapRight(Function<Right, G> mapper) {
-        return isRight() ? Optional.of(mapper.apply(right())) : Optional.empty();
-    }
+    public abstract <G> Either<Left, G> mapRight(Function<Right, G> mapper);
 
     public final <G> G fold(Function<Left, G> leftMapper, Function<Right, G> rightMapper) {
         return isRight() ? rightMapper.apply(right()) : leftMapper.apply(left());
     }
 
-    public void accept(Consumer<Left> leftConsumer, Consumer<Right> rightConsumer) {
+    public final void accept(Consumer<Left> leftConsumer, Consumer<Right> rightConsumer) {
         fold(
                 l -> {
                     leftConsumer.accept(l);
@@ -45,11 +37,11 @@ public abstract class Either<Left, Right> {
     }
 
     public final Optional<Right> rightOptional() {
-        return mapRight(identity());
+        return isRight() ? Optional.of(right()) : Optional.empty();
     }
 
     public final Optional<Left> leftOptional() {
-        return mapLeft(identity());
+        return isLeft() ? Optional.of(left()) : Optional.empty();
     }
 
 }
