@@ -1,9 +1,9 @@
 package com.mylaesoftware.utils;
 
-import com.mylaesoftware.exhandling.ExceptionHandling;
 import com.mylaesoftware.util.Left;
 import org.junit.Test;
 
+import static com.mylaesoftware.errorhandling.Try.Try;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
@@ -31,7 +31,7 @@ public class LeftTest {
         assertTrue(left.isLeft());
         assertFalse(left.isRight());
 
-        Throwable actualException = ExceptionHandling.Try(left::right).left();
+        Throwable actualException = Try(left::right).failed().get();
         assertEquals(UnsupportedOperationException.class, actualException.getClass());
     }
 
