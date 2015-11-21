@@ -74,4 +74,52 @@ public class PartialFunctionTest {
         assertThat(pf.apply(12), is("Yes"));
     }
 
+    @Test
+    public void applyOrElse_shouldNotCallDefaultFunction_whenThisFunctionIsDefinedAtDomainValue() throws Exception {
+        PartialFunction<Integer, String> pf = new PartialFunction<Integer, String>()
+                .caseOf(i -> i % 2 == 0, n -> "Yes");
+
+        String result = pf.applyOrElse(4, (i) -> "No");
+
+        assertThat(result, is("Yes"));
+    }
+
+    @Test
+    public void applyOrElse_shouldCallDefaultFunction_whenThisFunctionIsNotDefinedAtDomainValue() throws Exception {
+        PartialFunction<Integer, String> pf = new PartialFunction<Integer, String>()
+                .caseOf(i -> i % 2 == 0, n -> "No");
+
+        String result = pf.applyOrElse(3, (i) -> "Yes");
+
+        assertThat(result, is("Yes"));
+    }
+
+    @Test
+    public void orElse_shouldCombineNewPartialFunctionWhichAppliesThisBeforeOther() throws Exception {
+        PartialFunction<Integer, String> pf = new PartialFunction<Integer, String>()
+                .caseOf(i -> i == 2, n -> "No")
+                .caseOf(i -> i == 3, n -> "Yes");
+
+        PartialFunction<Integer, String> other = new PartialFunction<Integer, String>()
+                .caseOf(i -> i == 3, n -> "Maybe?");
+
+        String result = pf.orElse(other).apply(3);
+
+        assertThat(result, is("Yes"));
+    }
+
+    @Test
+    public void orElse_shouldCombineNewPartialFunctionWhichWillCallOther_whenThisISNotDefinedAtDomainValue() throws Exception {
+        PartialFunction<Integer, String> pf = new PartialFunction<Integer, String>()
+                .caseOf(i -> i == 2, n -> "No")
+                .caseOf(i -> i == 4, n -> "Yes");
+
+        PartialFunction<Integer, String> other = new PartialFunction<Integer, String>()
+                .caseOf(i -> i == 3, n -> "Maybe?");
+
+        String result = pf.orElse(other).apply(3);
+
+        assertThat(result, is("Maybe?"));
+    }
+
 }

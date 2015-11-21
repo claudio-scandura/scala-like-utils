@@ -23,6 +23,18 @@ public class PartialFunction<Domain, Codomain> implements Function<Domain, Codom
         });
     }
 
+    public Codomain applyOrElse(Domain domain, Function<Domain, Codomain> _default) {
+        return lift().apply(domain)
+                .orElseGet(() -> _default.apply(domain));
+    }
+
+    public PartialFunction<Domain, Codomain> orElse(PartialFunction<Domain, Codomain> other) {
+        PartialFunction<Domain, Codomain> combined = new PartialFunction<>();
+        combined.handlers.addAll(this.handlers);
+        combined.handlers.addAll(other.handlers);
+        return combined;
+    }
+
     public Function<Domain, Optional<Codomain>> lift() {
         return domain ->
             Stream.concat(handlers.stream(), streamDefaultHandler())
